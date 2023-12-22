@@ -1,0 +1,47 @@
+def create_user(username, password):
+    """
+    این تابع یک کاربر جدید با نام کاربری و رمز عبور مشخص ایجاد می‌کند.
+
+    Args:
+        username: نام کاربری
+        password: رمز عبور
+    """
+
+    os.system(f"useradd -m -s /bin/bash {username}")
+    os.system(f"echo {password} | passwd {username}")
+
+def set_limits(username, max_traffic, max_time):
+    """
+    این تابع محدودیت‌های مصرف ترافیک داده برای کاربر مشخص شده را تنظیم می‌کند.
+
+    Args:
+        username: نام کاربری
+        max_traffic: حداکثر مصرف ترافیک داده
+        max_time: حداکثر مدت زمان استفاده
+    """
+
+    upload_limit = int(max_traffic / 2)
+    download_limit = int(max_traffic / 2)
+    os.system(f"ulimit -l {upload_limit} {username}")
+    os.system(f"ulimit -u {download_limit} {username}")
+
+    os.system(f"sudo chage -M {max_time} {username}")
+
+def main():
+    # خواندن اطلاعات اسکریپت
+    info = read_script_info()
+
+    # ایجاد کاربران
+    for user in info["users"]:
+        create_user(user, "password")
+
+    # تنظیم محدودیت‌های ترافیک
+    for user, limits in info["limits"].items():
+        set_limits(user, limits["traffic"], limits["time"])
+
+    # نمایش اطلاعات اسکریپت
+    display_script_info(info)
+
+if __name__ == "__main__":
+    main()
+
